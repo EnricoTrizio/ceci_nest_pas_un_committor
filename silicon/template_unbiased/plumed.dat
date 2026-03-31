@@ -1,0 +1,36 @@
+# vim:ft=plumed
+
+####################################
+#  >> Silicon <<
+####################################
+
+# Load Structure factor code
+LOAD FILE=/home/etrizio@iit.local/notebooks/projects/kolmogorov_no_pos/silicon_convergence/StructureFactor_descriptor.test.so
+
+UNITS LENGTH=A
+
+# Define CVs
+ENVIRONMENTSIMILARITY ...
+ SPECIES=1-216
+ SIGMA=0.4
+ LATTICE_CONSTANTS=5.431
+ CRYSTAL_STRUCTURE=DIAMOND
+ LABEL=refcv
+ MORE_THAN={RATIONAL R_0=0.5 NN=12 MM=24}
+ MEAN
+... ENVIRONMENTSIMILARITY
+
+# get energy
+ene: ENERGY
+vol: VOLUME
+epv: COMBINE PERIODIC=NO COEFFICIENTS=1,0.06022140857 ARG=ene,vol
+
+# get Q6 atoms
+Q6 SPECIES=1-216 SWITCH={CUBIC D_0=2.35 D_MAX=3} VMEAN LOWMEM LABEL=q6
+
+# define structure factor calculation
+cv: STRUCTURE_FACTOR_DESCRIPTOR_TEST ACTIVE_SHELLS=27,72,99,144,171,216,243,288,315 STRUCTURE=DIAMOND UNIT_CELLS=3
+
+PRINT STRIDE=500  FILE=COLVAR ARG=*
+
+ENDPLUMED
